@@ -12,6 +12,7 @@
       margin: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
     }
 
     .label {
@@ -26,6 +27,30 @@
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,.2);
     }
+
+    .slider-box {
+      position: absolute;
+      z-index: 1000;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: white;
+      padding: 12px 16px;
+      border-radius: 999px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+      font-family: Arial, sans-serif;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #slider {
+      width: 260px;
+    }
+
+    .after-image {
+      clip-path: inset(0 50% 0 0);
+    }
   </style>
 </head>
 
@@ -37,28 +62,48 @@
 
   <div id="map"></div>
 
+  <div class="slider-box">
+    <span>Vorher</span>
+    <input id="slider" type="range" min="0" max="100" value="50">
+    <span>Nachher</span>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-side-by-side@2.2.0/leaflet-side-by-side.js"></script>
 
   <script>
     const map = L.map('map', {
       crs: L.CRS.Simple,
       minZoom: -4,
-      maxZoom: 4
+      maxZoom: 5
     });
 
-    // HIER die tatsächliche Bildgröße eintragen
+    // HIER deine tatsächliche Bildgröße eintragen
     const imageWidth = 5262;
     const imageHeight = 2480;
 
     const bounds = [[0, 0], [imageHeight, imageWidth]];
 
-    const beforeLayer = L.imageOverlay('./before.png', bounds).addTo(map);
-    const afterLayer = L.imageOverlay('./after.png', bounds).addTo(map);
+    const before = L.imageOverlay('./before.png', bounds).addTo(map);
+    const after = L.imageOverlay('./after.png', bounds, {
+      className: 'after-image'
+    }).addTo(map);
 
     map.fitBounds(bounds);
 
-    L.control.sideBySide(beforeLayer, afterLayer).addTo(map);
+    const slider = document.getElementById('slider');
+
+    function updateSlider() {
+      const value = slider.value;
+      const afterImg = document.querySelector('.after-image');
+      if (afterImg) {
+        afterImg.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+      }
+    }
+
+    slider.addEventListener('input', updateSlider);
+    map.on('zoom move', updateSlider);
+
+    updateSlider();
   </script>
 </body>
 </html>
