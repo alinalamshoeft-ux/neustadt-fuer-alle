@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Vorher / Nachher Lageplan</title>
+  <title>Lageplan Vergleich</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -12,61 +12,31 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
     }
 
-    .label {
+    .button {
       position: absolute;
       z-index: 1000;
-      top: 12px;
-      left: 12px;
+      top: 16px;
+      left: 16px;
       background: white;
-      padding: 10px 14px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.2);
-    }
-
-    .slider-box {
-      position: absolute;
-      z-index: 1000;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%);
-      background: white;
-      padding: 12px 16px;
+      padding: 12px 18px;
       border-radius: 999px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.25);
       font-family: Arial, sans-serif;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    #slider {
-      width: 260px;
-    }
-
-    .after-image {
-      clip-path: inset(0 50% 0 0);
+      font-size: 16px;
+      border: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
-  <div class="label">
-    <strong>Halle-Neustadt</strong><br>
-    Vorher / Nachher
-  </div>
+  <button class="button" onclick="toggleImage()" id="toggleButton">
+    Nachher anzeigen
+  </button>
 
   <div id="map"></div>
-
-  <div class="slider-box">
-    <span>Vorher</span>
-    <input id="slider" type="range" min="0" max="100" value="50">
-    <span>Nachher</span>
-  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -77,33 +47,32 @@
       maxZoom: 5
     });
 
-    // HIER deine tatsächliche Bildgröße eintragen
+    // HIER die echte Bildgröße eintragen
     const imageWidth = 5262;
     const imageHeight = 2480;
 
     const bounds = [[0, 0], [imageHeight, imageWidth]];
 
-    const before = L.imageOverlay('./before.png', bounds).addTo(map);
-    const after = L.imageOverlay('./after.png', bounds, {
-      className: 'after-image'
-    }).addTo(map);
+    const before = L.imageOverlay('before.png', bounds).addTo(map);
+    const after = L.imageOverlay('after.png', bounds);
 
     map.fitBounds(bounds);
 
-    const slider = document.getElementById('slider');
+    let showingAfter = false;
 
-    function updateSlider() {
-      const value = slider.value;
-      const afterImg = document.querySelector('.after-image');
-      if (afterImg) {
-        afterImg.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+    function toggleImage() {
+      if (showingAfter) {
+        map.removeLayer(after);
+        before.addTo(map);
+        document.getElementById('toggleButton').innerText = 'Nachher anzeigen';
+        showingAfter = false;
+      } else {
+        map.removeLayer(before);
+        after.addTo(map);
+        document.getElementById('toggleButton').innerText = 'Vorher anzeigen';
+        showingAfter = true;
       }
     }
-
-    slider.addEventListener('input', updateSlider);
-    map.on('zoom move', updateSlider);
-
-    updateSlider();
   </script>
 </body>
 </html>
