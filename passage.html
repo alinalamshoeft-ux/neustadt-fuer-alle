@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Blick in die Passage Vergleich</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    html, body, #map {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .button {
+      position: absolute;
+      z-index: 1000;
+      top: 16px;
+      left: 16px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      border: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="button" onclick="toggleImage()" id="toggleButton">
+    Nachher anzeigen
+  </button>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -4,
+      maxZoom: 5
+    });
+
+    // HIER die echte Bildgröße eintragen
+    const imageWidth = 9363;  
+    const imageHeight = 6623;
+
+    const bounds = [[0, 0], [imageHeight, imageWidth]];
+
+    const before = L.imageOverlay('beforeP.png', bounds).addTo(map);
+    const after = L.imageOverlay('afterP.png', bounds);
+
+    map.fitBounds(bounds);
+
+    let showingAfter = false;
+
+    function toggleImage() {
+      if (showingAfter) {
+        map.removeLayer(after);
+        before.addTo(map);
+        document.getElementById('toggleButton').innerText = '2035 anzeigen';
+        showingAfter = false;
+      } else {
+        map.removeLayer(before);
+        after.addTo(map);
+        document.getElementById('toggleButton').innerText = '2026 anzeigen';
+        showingAfter = true;
+      }
+    }
+  </script>
+</body>
+</html>
 
